@@ -1,0 +1,33 @@
+{
+	"compilerOptions": {
+		"types": [
+			"@testing-library/jest-dom",
+			"jest",
+			"jest-environment-jsdom",
+			"react",
+			"react-dom"
+		],
+		"target": "ESNext",
+		"module": "ESNext",
+		"moduleResolution": "Node",
+		"jsx": "react",
+		"declaration": true,
+		"declarationMap": true,
+		"emitDeclarationOnly": true,
+		"outDir": "dist/types",
+		"strict": true,
+		"allowJs": true,
+		"checkJs": true,
+		"esModuleInterop": true,
+		"skipLibCheck": true
+	},
+	"include": ["src/**/*"],
+	"exclude": [
+		"**/node_modules/**",
+		"**/dist/**",
+		"**/build/**",
+		"**/pack/**",
+		"**/app/**"
+		// "**/*.test.*/**"
+	]
+}
