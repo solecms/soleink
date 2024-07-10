@@ -1,5 +1,5 @@
 import React from "react";
-import { SoleEditor } from ".";
+import { SoleInk } from ".";
 import {
 	render,
 	screen,
@@ -10,7 +10,7 @@ import {
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
-describe("SoleEditor - Component", () => {
+describe("SoleInk - Component", () => {
 	afterEach(() => {
 		cleanup();
 	});
@@ -19,7 +19,7 @@ describe("SoleEditor - Component", () => {
 
 	describe("without initialValue", () => {
 		beforeEach(() => {
-			render(<SoleEditor />);
+			render(<SoleInk />);
 		});
 
 		it("should render without crashing", () => {
@@ -37,7 +37,7 @@ describe("SoleEditor - Component", () => {
 
 	describe("with initialValue", () => {
 		it("should render the provided initialValue if it is provided", () => {
-			render(<SoleEditor initialValue="Hello, World!" />);
+			render(<SoleInk initialValue="Hello, World!" />);
 			const editor = screen.getByTestId(editorID);
 			expect(editor).toHaveTextContent("Hello, World!");
 		});
@@ -45,7 +45,7 @@ describe("SoleEditor - Component", () => {
 		it("user types into the editor", async () => {
 			const user = userEvent.setup();
 
-			render(<SoleEditor initialValue="Hello, World!" />);
+			render(<SoleInk initialValue="Hello, World!" />);
 			const editable = screen.getByRole("textbox");
 			await user.type(editable, "!!");
 			expect(editable.textContent).toBe("Hello, World!!!");
