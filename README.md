@@ -5,7 +5,7 @@
 
 
 
-<div style="text-align: right;">
+<div align="right">
   <a href="https://github.com/solecms/soleink/actions/workflows/ci-cd.yml">
     <img src="https://github.com/solecms/soleink/actions/workflows/ci-cd.yml/badge.svg" alt="SoleInk CI/CD">
   </a>
