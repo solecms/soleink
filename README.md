@@ -3,6 +3,16 @@
 </div>
 
 
+
+
+<div style="text-align: right;">
+  <a href="https://github.com/solecms/soleink/actions/workflows/ci-cd.yml">
+    <img src="https://github.com/solecms/soleink/actions/workflows/ci-cd.yml/badge.svg" alt="SoleInk CI/CD">
+  </a>
+</div>
+
+
+
 # SoleInk
 
 SoleInk is a plugin-based rich-text editor built with React, leveraging the powerful Slate.js framework. This library is designed to be highly customizable and extensible, allowing developers to easily create and integrate custom plugins for a wide range of use cases.
