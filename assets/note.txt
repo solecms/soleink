@@ -1,0 +1,1 @@
+This directory will hold all the assets related to the project, such as logos, images, and any other static files. This will help in maintaining a clean and structured project hierarchy.
