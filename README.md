@@ -14,6 +14,16 @@
 
 SoleInk is a plugin-based rich-text editor built with React, leveraging the powerful Slate.js framework. This library is designed to be highly customizable and extensible, allowing developers to easily create and integrate custom plugins for a wide range of use cases.
 
+## Table of Contents
+- [Features](#features)
+- [Installation](#installation)
+- [Usage](#usage)
+  - [Importing SoleInk](#importing-soleink)
+    - [Named import](#named-import)
+    - [Default import](#default-import)
+  - [Basic usage](#basic-usage)
+- [License](#license)
+
 ## Features
 
 - **Rich Text Editing**: Supports various text formatting options.
