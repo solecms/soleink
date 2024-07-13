@@ -1,16 +1,13 @@
-<div align="center">
-  <img src="assets/soleink-logo.svg" alt="SoleInk" width="150"/>
-</div>
-
-
-
-
 <div align="right">
   <a href="https://github.com/solecms/soleink/actions/workflows/ci-cd.yml">
     <img src="https://github.com/solecms/soleink/actions/workflows/ci-cd.yml/badge.svg" alt="SoleInk CI/CD">
   </a>
 </div>
 
+
+<div align="center">
+  <img src="assets/soleink-logo.svg" alt="SoleInk" width="150"/>
+</div>
 
 
 # SoleInk
