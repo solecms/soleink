@@ -1,0 +1,95 @@
+name: Sync PR Issue
+
+on:
+  pull_request:
+    types: [opened]
+
+jobs:
+  access-issue-props:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set issue number
+        id: set-issue-number
+        run: |
+          ISSUE_NUMBER=$(echo "${{ github.event.pull_request.title }} ${{ github.event.pull_request.body }}" | grep -oE '#[0-9]+' | head -n 1 | tr -d '#')            
+          echo "ISSUE_NUMBER=$ISSUE_NUMBER" >> $GITHUB_ENV
+
+      - name: Get an issue by number and set issue as output
+        if: env.ISSUE_NUMBER 
+        id: issue
+        env:
+            ISSUE_NUMBER: ${{ env.ISSUE_NUMBER }}
+            OWNER: ${{ github.repository_owner }}
+            REPO: ${{ github.event.repository.name }}
+        run: |
+            .github/scripts/get-issue.sh \
+                ${{secrets.REPO_SECRET}} \
+                $OWNER \
+                $REPO \
+                $ISSUE_NUMBER
+
+      - name: Process issue with JavaScript
+        if: env.ISSUE
+        id: process-issue
+        env:
+            ISSUE: ${{ env.ISSUE }}
+        uses: actions/github-script@v7
+        with:
+            github-token: ${{ secrets.REPO_SECRET }}
+            script: |
+                const issue = JSON.parse(process.env.ISSUE);
+
+                const labels = issue.labels ? issue.labels.map(label => label.name) : [];
+                const assignees = issue.assignees ? issue.assignees.map(assignee => assignee.login) : [];
+                const milestone = issue.milestone ? issue.milestone.number : null;
+
+                return {
+                    labels: labels,
+                    assignees: assignees,
+                    milestone: milestone
+                };
+
+      - name: Apply labels, assignees and milestone to pull request
+
+        if: steps.process-issue.outcome == 'success'
+        uses: actions/github-script@v7
+        env:
+            RESULT: ${{ steps.process-issue.outputs.result }}
+        with:
+            github-token: ${{ secrets.REPO_SECRET }}
+            script: |
+                const prNumber = context.issue.number;
+                const details = JSON.parse(process.env.RESULT);
+                
+                // Add labels
+                if (details.labels.length > 0) {
+                    await github.rest.issues.addLabels({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    issue_number: prNumber,
+                    labels: details.labels
+                    });
+                }
+
+                // Add assignees
+                if (details.assignees.length > 0) {
+                    await github.rest.issues.addAssignees({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    issue_number: prNumber,
+                    assignees: details.assignees
+                    });
+                }
+
+                // Add milestone
+                if (details.milestone != null) {
+                    await github.rest.issues.update({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    issue_number: prNumber,
+                    milestone: details.milestone
+                    });
+                }
