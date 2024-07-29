@@ -16,9 +16,5 @@ issue=$(curl -L \
     -H "X-GitHub-Api-Version: 2022-11-28" \
     https://api.github.com/repos/$OWNER/$REPO/issues/$ISSUE_NUMBER)
 
-Check issue status
-
-echo "issue: $issue"
-echo "issue.status: $(echo "$issue" | jq -r .status)"
 
 echo "ISSUE=$(echo "$issue" | jq -c .)" >> $GITHUB_ENV
