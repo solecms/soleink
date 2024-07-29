@@ -21,23 +21,7 @@ jobs:
           const projectNumber = 3;
           const columnName = 'Review/QA';
           
-          // Get the project ID from the user's projects
-          const { user } = await github.graphql(`
-            query($owner: String!) {
-              user(login: $owner) {
-                projectsV2(first: 100) {
-                  nodes {
-                    id
-                    title
-                  }
-                }
-              }
-            }
-          `, {
-            owner: projectOwner
-          });
-          
-          // Fallback: Get the project ID from the organization's projects if not found in user projects
+          // Get the project ID from the organization's projects
           const { organization } = await github.graphql(`
             query($owner: String!) {
               organization(login: $owner) {
@@ -53,7 +37,7 @@ jobs:
             owner: projectOwner
           });
 
-          const projects = (user?.projectsV2?.nodes ?? []).concat(organization?.projectsV2?.nodes ?? []);
+          const projects = organization?.projectsV2?.nodes ?? [];
           console.log("Projects Response:", projects);
 
           const project = projects.find(proj => proj.title === `Project ${projectNumber}`);
