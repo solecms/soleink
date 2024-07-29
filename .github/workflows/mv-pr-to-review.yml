@@ -37,6 +37,11 @@ jobs:
             repo: context.repo.repo
           });
 
+          console.log("Repository Response:", repository);
+          if (!repository.projectsV2.nodes.length) {
+            throw new Error(`No projects found for the repository: ${context.repo.repo}`);
+          }
+
           const projectId = repository.projectsV2.nodes[0].id;
 
           // Get the column ID
@@ -55,7 +60,13 @@ jobs:
             projectId: projectId
           });
 
-          const columnId = projectV2.views.nodes.find(view => view.name === columnName).id;
+          console.log("ProjectV2 Response:", projectV2);
+          const column = projectV2.views.nodes.find(view => view.name === columnName);
+          if (!column) {
+            throw new Error(`Column '${columnName}' not found in project '${projectNumber}'`);
+          }
+
+          const columnId = column.id;
 
           // Get the PR ID
           const prId = context.payload.pull_request.node_id;
@@ -74,3 +85,5 @@ jobs:
             prId: prId,
             columnId: columnId
           });
+
+          console.log(`Successfully added PR ${prId} to project ${projectId} under column ${columnId}`);
