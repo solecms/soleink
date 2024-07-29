@@ -1,0 +1,78 @@
+name: Move PR to Review
+
+on:
+  pull_request:
+    types: [opened]
+
+jobs:
+  move-card:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Move PR to Review
+      uses: actions/github-script@v7
+      with:
+        github-token: ${{ secrets.REPO_SECRET }}
+        script: |
+          const github = require('@actions/github');
+          
+          const projectOwner = 'solecms';
+          const projectNumber = 3;
+          const columnName = 'Review/QA';
+          
+          // Get the project ID
+          const { repository } = await github.graphql(`
+            query($owner: String!, $repo: String!) {
+              repository(owner: $owner, name: $repo) {
+                projectsV2(first: 1) {
+                  nodes {
+                    id
+                  }
+                }
+              }
+            }
+          `, {
+            owner: projectOwner,
+            repo: github.context.repo.repo
+          });
+
+          const projectId = repository.projectsV2.nodes[0].id;
+
+          // Get the column ID
+          const { projectV2 } = await github.graphql(`
+            query($projectId: ID!) {
+              projectV2(id: $projectId) {
+                views(first: 1) {
+                  nodes {
+                    id
+                    name
+                  }
+                }
+              }
+            }
+          `, {
+            projectId: projectId
+          });
+
+          const columnId = projectV2.views.nodes.find(view => view.name === columnName).id;
+
+          // Get the PR ID
+          const prId = github.context.payload.pull_request.node_id;
+
+          // Add the PR to the project
+          await github.graphql(`
+            mutation($projectId: ID!, $prId: ID!, $columnId: ID!) {
+              addProjectV2ItemById(input: {projectId: $projectId, contentId: $prId, fieldId: $columnId}) {
+                item {
+                  id
+                }
+              }
+            }
+          `, {
+            projectId: projectId,
+            prId: prId,
+            columnId: columnId
+          });
