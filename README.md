@@ -6,7 +6,7 @@
     <img src="https://github.com/solecms/soleink/actions/workflows/sync-pr-issue.yml/badge.svg" alt="SoleInk Sync PR">
 </div>
 
-____
+_____
 
 <div align="center">
   <img src="assets/soleink-logo.svg" alt="SoleInk" width="150"/>
