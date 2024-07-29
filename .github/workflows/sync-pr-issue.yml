@@ -34,7 +34,7 @@ jobs:
                 $ISSUE_NUMBER
 
       - name: Process issue with JavaScript
-        if: env.ISSUE && env.ISSUE.status != '404'
+        if: env.ISSUE
         id: process-issue
         env:
             ISSUE: ${{ env.ISSUE }}
@@ -43,6 +43,16 @@ jobs:
             github-token: ${{ secrets.REPO_SECRET }}
             script: |
                 const issue = JSON.parse(process.env.ISSUE);
+
+                console.log('Issue Status: ' + issue.status);
+
+                if (issue.status === 404) {
+                    return {
+                        labels: [],
+                        assignees: [],
+                        milestone: null
+                    };
+                }
 
                 const labels = issue.labels ? issue.labels.map(label => label.name) : [];
                 const assignees = issue.assignees ? issue.assignees.map(assignee => assignee.login) : [];
