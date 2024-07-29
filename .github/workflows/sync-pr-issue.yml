@@ -44,16 +44,6 @@ jobs:
             script: |
                 const issue = JSON.parse(process.env.ISSUE);
 
-                console.log('Issue Status: ' + issue.status);
-
-                if (issue.status === 404) {
-                    return {
-                        labels: [],
-                        assignees: [],
-                        milestone: null
-                    };
-                }
-
                 const labels = issue.labels ? issue.labels.map(label => label.name) : [];
                 const assignees = issue.assignees ? issue.assignees.map(assignee => assignee.login) : [];
                 const milestone = issue.milestone ? issue.milestone.number : null;
