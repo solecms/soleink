@@ -16,13 +16,4 @@ issue=$(curl -L \
     -H "X-GitHub-Api-Version: 2022-11-28" \
     https://api.github.com/repos/$OWNER/$REPO/issues/$ISSUE_NUMBER)
 
-
-echo "issue: $issue"
-
-if [ -z "$issue" ]; then
-    echo "ISSUE=null" >> $GITHUB_ENV
-    echo "Not issue ran for this PR"    
-    exit 0
-fi
-
 echo "ISSUE=$(echo "$issue" | jq -c .)" >> $GITHUB_ENV

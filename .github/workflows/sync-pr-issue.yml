@@ -34,7 +34,7 @@ jobs:
                 $ISSUE_NUMBER
 
       - name: Process issue with JavaScript
-        if: env.ISSUE
+        if: env.ISSUE && env.ISSUE.status != '404'
         id: process-issue
         env:
             ISSUE: ${{ env.ISSUE }}
