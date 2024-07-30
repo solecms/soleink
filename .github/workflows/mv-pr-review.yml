@@ -16,7 +16,7 @@ jobs:
       id: get_workflow_token
       uses: peter-murray/workflow-application-token-action@v3
       with:
-        application_id: ${{ vars.APP_ID}}
+        application_id: ${{ vars.APP_ID }}
         application_private_key: ${{ secrets.APP_SECRET }}
 
     - name: Move PR to Review
@@ -25,14 +25,14 @@ jobs:
         github-token: ${{ steps.get_workflow_token.outputs.token }}
         script: |
           const projectOwner = 'solecms';
-          const projectNumber = 3;  // Project ID from the URL
+          const projectNumber = 3; // Project ID from the URL
           const columnName = 'Review/QA';
 
           // Get the project ID from the organization's projects
           const { organization } = await github.graphql(`
             query($owner: String!) {
               organization(login: $owner) {
-                projectsV2(first: 100) {
+                projectsNext(first: 100) {
                   nodes {
                     id
                     number
@@ -44,7 +44,7 @@ jobs:
             owner: projectOwner
           });
 
-          const projects = organization?.projectsV2?.nodes ?? [];
+          const projects = organization?.projectsNext?.nodes ?? [];
           console.log("Projects Response:", projects);
 
           const project = projects.find(proj => proj.number === projectNumber);
@@ -55,13 +55,15 @@ jobs:
           const projectId = project.id;
 
           // Get the column ID
-          const { projectV2 } = await github.graphql(`
+          const { projectNext } = await github.graphql(`
             query($projectId: ID!) {
-              projectV2(id: $projectId) {
-                views(first: 100) {
-                  nodes {
-                    id
-                    name
+              node(id: $projectId) {
+                ... on ProjectNext {
+                  fields(first: 100) {
+                    nodes {
+                      id
+                      name
+                    }
                   }
                 }
               }
@@ -70,8 +72,8 @@ jobs:
             projectId: projectId
           });
 
-          console.log("ProjectV2 Response:", projectV2);
-          const column = projectV2.views.nodes.find(view => view.name === columnName);
+          console.log("ProjectNext Response:", projectNext);
+          const column = projectNext.fields.nodes.find(field => field.name === columnName);
           if (!column) {
             throw new Error(`Column '${columnName}' not found in project '${projectNumber}'`);
           }
@@ -83,8 +85,8 @@ jobs:
 
           // Add the PR to the project
           await github.graphql(`
-            mutation($projectId: ID!, $prId: ID!, $columnId: ID!) {
-              addProjectV2ItemById(input: {projectId: $projectId, contentId: $prId, fieldId: $columnId}) {
+            mutation($projectId: ID!, $prId: ID!, $fieldId: ID!) {
+              addProjectNextItemById(input: {projectId: $projectId, contentId: $prId, fieldId: $fieldId}) {
                 item {
                   id
                 }
@@ -93,7 +95,7 @@ jobs:
           `, {
             projectId: projectId,
             prId: prId,
-            columnId: columnId
+            fieldId: columnId
           });
 
           console.log(`Successfully added PR ${prId} to project ${projectId} under column ${columnId}`);
