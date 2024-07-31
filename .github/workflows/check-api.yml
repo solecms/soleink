@@ -10,6 +10,20 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Get Token
+        id: get_workflow_token
+        uses: peter-murray/workflow-application-token-action@v3
+        with:
+          application_id: ${{ vars.APP_ID }}
+          application_private_key: ${{ secrets.APP_SECRET }}
+
       - name: Check API
-        run: |
-          echo "OK"
+        uses: actions/github-script@v7
+        env:
+            GITHUB_TOKEN: ${{ steps.get_workflow_token.outputs.token }}
+        with:
+          github-token: ${{ steps.get_workflow_token.outputs.token }}
+          script: |
+            console.log('Hello, World!')
+
+            console.log("GITHUB_TOKEN:", process.env.GITHUB_TOKEN);
