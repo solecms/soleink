@@ -25,8 +25,9 @@ jobs:
         github-token: ${{ steps.get_workflow_token.outputs.token }}
         script: |
           const projectOwner = 'solecms';
-          const projectNumber = 3; // Your project number
-          const columnName = 'Review/QA';
+          const projectNumber = 3;
+          const statusFieldName = 'Status';
+          const newStatusValue = 'Review/QA';
 
           // Get the organization projects
           const { organization } = await github.graphql(`
@@ -70,26 +71,60 @@ jobs:
           const projectId = project.id;
           console.log(`Found project ID: ${projectId}`);
 
-          // Log the column names
+          // Find the "Status" field
           const fields = project.fields.nodes;
           console.log("Available Columns:", fields.map(field => field.name));
 
-          // Find the column by name
-          const column = fields.find(field => field.name === columnName);
-          if (!column) {
-            throw new Error(`Column '${columnName}' not found in project '${projectNumber}'`);
+          const statusField = fields.find(field => field.name === statusFieldName);
+          if (!statusField) {
+            throw new Error(`Field '${statusFieldName}' not found in project '${projectNumber}'`);
           }
 
-          const columnId = column.id;
+          const statusFieldId = statusField.id;
+          console.log(`Found status field ID: ${statusFieldId}`);
 
           // Get the PR ID
           const prId = context.payload.pull_request.node_id;
 
-          // Add the PR to the project column
+          // Get the possible values for the "Status" field
+          const { node } = await github.graphql(`
+            query($id: ID!) {
+              node(id: $id) {
+                ... on ProjectV2Field {
+                  ... on ProjectV2SingleSelectField {
+                    options {
+                      id
+                      name
+                    }
+                  }
+                }
+              }
+            }
+          `, {
+            id: statusFieldId
+          });
+
+          const options = node.options;
+          console.log("Available Status Options:", options);
+
+          // Find the ID for the desired status
+          const newStatusOption = options.find(option => option.name === newStatusValue);
+          if (!newStatusOption) {
+            throw new Error(`Status option '${newStatusValue}' not found in field '${statusFieldName}'`);
+          }
+
+          const newStatusOptionId = newStatusOption.id;
+
+          // Add the PR to the project with the new status
           await github.graphql(`
-            mutation($projectId: ID!, $contentId: ID!, $fieldId: ID!) {
-              addProjectV2ItemById(input: {projectId: $projectId, contentId: $contentId, fieldId: $fieldId}) {
-                item {
+            mutation($projectId: ID!, $contentId: ID!, $fieldId: ID!, $optionId: ID!) {
+              updateProjectV2ItemFieldValue(input: {
+                projectId: $projectId,
+                itemId: $contentId,
+                fieldId: $fieldId,
+                value: { singleSelectOptionId: $optionId }
+              }) {
+                projectV2Item {
                   id
                 }
               }
@@ -97,7 +132,8 @@ jobs:
           `, {
             projectId: projectId,
             contentId: prId,
-            fieldId: columnId
+            fieldId: statusFieldId,
+            optionId: newStatusOptionId
           });
 
-          console.log(`Successfully added PR ${prId} to project column ${columnName}`);
+          console.log(`Successfully set PR ${prId} to status '${newStatusValue}'`);
