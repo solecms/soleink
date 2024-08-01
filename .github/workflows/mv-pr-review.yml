@@ -98,7 +98,7 @@ jobs:
             throw new Error(`Status option '${newStatusValue}' not found in field '${statusFieldName}'`);
           }
 
-          const newStatusOptionId = github.graphqlId(newStatusOption.id);
+          const newStatusOptionId = newStatusOption.id;
 
           // Add the PR to the project with the new status
           await github.graphql(`
@@ -107,7 +107,7 @@ jobs:
                 projectId: $projectId,
                 itemId: $contentId,
                 fieldId: $fieldId,
-                value: { singleSelectOptionId: $optionId }
+                value: { singleSelectOptionId: ${newStatusOptionId} }
               }) {
                 projectV2Item {
                   id
@@ -118,7 +118,7 @@ jobs:
             projectId: projectId,
             contentId: prId,
             fieldId: statusFieldId,
-            optionId: newStatusOptionId
+            # optionId: newStatusOptionId
           });
 
           console.log(`Successfully set PR ${prId} to status '${newStatusValue}'`);
