@@ -98,7 +98,7 @@ jobs:
             throw new Error(`Status option '${newStatusValue}' not found in field '${statusFieldName}'`);
           }
 
-          const newStatusOptionId = newStatusOption.id;
+          const newStatusOptionId = github.graphqlId(newStatusOption.id);
 
           // Add the PR to the project with the new status
           await github.graphql(`
