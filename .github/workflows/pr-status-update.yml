@@ -118,7 +118,7 @@ jobs:
             projectId: projectId,
             contentId: prId,
             fieldId: statusFieldId,
-            optionId: newStatusOptionId.toString() // Ensuring the ID is treated as a string
+            optionId: String(newStatusOptionId) // Explicitly converting to string
           });
 
           console.log(`Successfully set PR ${prId} to status '${newStatusValue}'`);
