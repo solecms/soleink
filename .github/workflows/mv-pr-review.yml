@@ -107,7 +107,7 @@ jobs:
                 projectId: $projectId,
                 itemId: $contentId,
                 fieldId: $fieldId,
-                value: { singleSelectOptionId: ${newStatusOptionId} }
+                value: { singleSelectOptionId: $optionId }
               }) {
                 projectV2Item {
                   id
@@ -117,8 +117,8 @@ jobs:
           `, {
             projectId: projectId,
             contentId: prId,
-            fieldId: statusFieldId
+            fieldId: statusFieldId,
+            optionId: newStatusOptionId
           });
 
           console.log(`Successfully set PR ${prId} to status '${newStatusValue}'`);
-
