@@ -4,9 +4,12 @@ module.exports = async ({ github, context }) => {
 		throw new Error("GitHub object is undefined.");
 	}
 
-	const { payload } = context;
-	const { pull_request } = payload;
-	const prId = pull_request.node_id;
+	// const { payload } = context;
+	// const { pull_request } = payload;
+	// const prId = pull_request.node_id;
+
+	const prId = context.payload.pull_request.node_id;
+	console.log("prId: ", prId);
 
 	const projectId = "PVT_kwDOCksqQs4AkdsH"; // replace with your project ID
 	const statusFieldId = "PVTSSF_lADOCksqQs4AkdsHzgcqtpk"; // replace with your status field ID
@@ -28,6 +31,7 @@ module.exports = async ({ github, context }) => {
 
 	try {
 		const result = await github.graphql(query, { pullRequestId: prId });
+		console.log("result: ", result);
 		const projectItemId = result.data.node.projectItems.nodes[0].id;
 
 		// Now you can use the projectItemId to update the project item field value
