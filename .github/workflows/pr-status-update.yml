@@ -25,6 +25,6 @@ jobs:
         github-token: ${{ steps.get_workflow_token.outputs.token }}
         script: |
           const updateProjectStatus = require('./src/lib/workflow/update-project-status');
-          updateProjectStatus(github, context);
+          await updateProjectStatus({ github, context });
           
 
