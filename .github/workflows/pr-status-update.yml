@@ -86,6 +86,8 @@ jobs:
             throw new Error(`Field '${statusFieldName}' not found in project '${projectNumber}'`);
           }
 
+          console.log("statusField: ", statusField);
+
           const statusFieldId = statusField.id;
           console.log(`Found status field ID: ${statusFieldId}`);
 
