@@ -4,8 +4,11 @@ module.exports = async ({ github, context }) => {
 		throw new Error("GitHub object is undefined.");
 	}
 
+	const { payload } = context;
+	const { pull_request } = payload;
+	const prId = pull_request.node_id;
+
 	const projectId = "PVT_kwDOCksqQs4AkdsH"; // replace with your project ID
-	// const prId = context.payload.pull_request.node_id;
 	const statusFieldId = "PVTSSF_lADOCksqQs4AkdsHzgcqtpk"; // replace with your status field ID
 	const newStatusOptionId = "df73e18b"; // replace with the new status option ID
 
