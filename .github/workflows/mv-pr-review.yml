@@ -32,12 +32,12 @@ jobs:
           const { organization } = await github.graphql(`
             query($owner: String!) {
               organization(login: $owner) {
-                projects(first: 100) {
+                projectsV2(first: 100) {
                   nodes {
                     id
                     number
-                    name
-                    columns(first: 100) {
+                    title
+                    fields(first: 100) {
                       nodes {
                         id
                         name
@@ -55,7 +55,7 @@ jobs:
             throw new Error(`Organization '${projectOwner}' not found`);
           }
 
-          const projects = organization.projects.nodes ?? [];
+          const projects = organization.projectsV2.nodes ?? [];
           console.log("Projects Response:", projects);
 
           // Find the project by number
@@ -68,8 +68,8 @@ jobs:
           console.log(`Found project ID: ${projectId}`);
 
           // Get the column ID
-          const columns = project.columns.nodes;
-          const column = columns.find(col => col.name === columnName);
+          const fields = project.fields.nodes;
+          const column = fields.find(col => col.name === columnName);
           if (!column) {
             throw new Error(`Column '${columnName}' not found in project '${projectNumber}'`);
           }
@@ -82,11 +82,9 @@ jobs:
           // Add the PR to the project column
           await github.graphql(`
             mutation($columnId: ID!, $contentId: ID!) {
-              addProjectCard(input: {projectColumnId: $columnId, contentId: $contentId}) {
-                cardEdge {
-                  node {
-                    id
-                  }
+              addProjectV2ItemById(input: {projectId: $columnId, contentId: $contentId}) {
+                item {
+                  id
                 }
               }
             }
