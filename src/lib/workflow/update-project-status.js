@@ -12,7 +12,7 @@ module.exports = async ({ github, context }) => {
 	try {
 		await github.graphql(
 			`
-        mutation($projectId: ID!, $contentId: ID!, $fieldId: ID!, $optionId: ID!) {
+        mutation($projectId: ID!, $contentId: ID!, $fieldId: ID!, $optionId: String!) {
           updateProjectV2ItemFieldValue(input: {
             projectId: $projectId,
             itemId: $contentId,
@@ -29,7 +29,7 @@ module.exports = async ({ github, context }) => {
 				projectId,
 				contentId: prId,
 				fieldId: statusFieldId,
-				optionId: newStatusOptionId.toString(), // Ensuring the ID is treated as a string
+				optionId: newStatusOptionId, // Ensuring the ID is treated as a string
 			},
 		);
 	} catch (error) {
