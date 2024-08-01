@@ -100,25 +100,25 @@ jobs:
 
           const newStatusOptionId = newStatusOption.id;
 
-          // Add the PR to the project with the new status
-          await github.graphql(`
+            // Add the PR to the project with the new status
+            await github.graphql(`
             mutation($projectId: ID!, $contentId: ID!, $fieldId: ID!, $optionId: ID!) {
-              updateProjectV2ItemFieldValue(input: {
+                updateProjectV2ItemFieldValue(input: {
                 projectId: $projectId,
                 itemId: $contentId,
                 fieldId: $fieldId,
                 value: { singleSelectOptionId: $optionId }
-              }) {
+                }) {
                 projectV2Item {
-                  id
+                    id
                 }
-              }
+                }
             }
-          `, {
+            `, {
             projectId: projectId,
             contentId: prId,
             fieldId: statusFieldId,
-            optionId: newStatusOptionId
-          });
+            optionId: newStatusOptionId.toString() // Ensuring the ID is treated as a string
+            });
 
-          console.log(`Successfully set PR ${prId} to status '${newStatusValue}'`);
+            console.log(`Successfully set PR ${prId} to status '${newStatusValue}'`);
