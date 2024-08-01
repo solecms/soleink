@@ -122,3 +122,4 @@ jobs:
           });
 
           console.log(`Successfully set PR ${prId} to status '${newStatusValue}'`);
+
