@@ -1,0 +1,88 @@
+name: Move PR to Review
+
+on:
+  pull_request:
+    types: [opened]
+
+jobs:
+  move-card:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Get Token
+      id: get_workflow_token
+      uses: peter-murray/workflow-application-token-action@v3
+      with:
+        application_id: ${{ vars.APP_ID }}
+        application_private_key: ${{ secrets.APP_SECRET }}
+
+    - name: Move PR to Review
+      uses: actions/github-script@v7
+      with:
+        github-token: ${{ steps.get_workflow_token.outputs.token }}
+        script: |
+          const projectOwner = 'solecms';
+          const projectNumber = 3; // Your project number
+          const columnName = 'Review/QA';
+
+          // Get the project columns
+          const { organization } = await github.graphql(`
+            query($owner: String!) {
+              organization(login: $owner) {
+                projects(first: 100) {
+                  nodes {
+                    id
+                    number
+                    columns(first: 100) {
+                      nodes {
+                        id
+                        name
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          `, {
+            owner: projectOwner
+          });
+
+          const projects = organization?.projects?.nodes ?? [];
+          console.log("Projects Response:", projects);
+
+          const project = projects.find(proj => proj.number === projectNumber);
+          if (!project) {
+            throw new Error(`Project number '${projectNumber}' not found for owner '${projectOwner}'`);
+          }
+
+          const columns = project.columns.nodes;
+          const column = columns.find(col => col.name === columnName);
+          if (!column) {
+            throw new Error(`Column '${columnName}' not found in project '${projectNumber}'`);
+          }
+
+          const columnId = column.id;
+
+          // Get the PR ID
+          const prId = context.payload.pull_request.node_id;
+
+          // Add the PR to the project column
+          await github.graphql(`
+            mutation($columnId: ID!, $contentId: ID!) {
+              addProjectCard(input: {projectColumnId: $columnId, contentId: $contentId}) {
+                cardEdge {
+                  node {
+                    id
+                  }
+                }
+              }
+            }
+          `, {
+            columnId: columnId,
+            contentId: prId
+          });
+
+          console.log(`Successfully added PR ${prId} to project column ${columnName}`);
