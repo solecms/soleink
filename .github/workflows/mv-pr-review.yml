@@ -70,8 +70,11 @@ jobs:
           const projectId = project.id;
           console.log(`Found project ID: ${projectId}`);
 
-          // Get the field ID
+          // Log the column names
           const fields = project.fields.nodes;
+          console.log("Available Columns:", fields.map(field => field.name));
+
+          // Find the column by name
           const column = fields.find(field => field.name === columnName);
           if (!column) {
             throw new Error(`Column '${columnName}' not found in project '${projectNumber}'`);
