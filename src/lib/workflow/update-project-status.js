@@ -31,8 +31,9 @@ module.exports = async ({ github, context }) => {
 
 	try {
 		const result = await github.graphql(query, { pullRequestId: prId });
-		console.log("result: ", result);
-		const projectItemId = result.data.node.projectItems.nodes[0].id;
+		// console.log full result with pretty print
+		console.log(JSON.stringify(result, null, 2));
+		const projectItemId = result.node.projectItems.nodes[0].id;
 
 		// Now you can use the projectItemId to update the project item field value
 		const updateQuery = `
