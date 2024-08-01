@@ -1,4 +1,4 @@
-name: Move PR to Review
+name: PR Status Update
 
 on:
   pull_request:
@@ -24,7 +24,7 @@ jobs:
       with:
         github-token: ${{ steps.get_workflow_token.outputs.token }}
         script: |
-          const updateProjectStatus = require('./src/lib/workflow/update-project-status');
+          const updateProjectStatus = require('./.github/scripts/update-project-status');
           await updateProjectStatus({ github, context });
           
 
