@@ -45,6 +45,12 @@ jobs:
                           id
                           name
                         }
+                        ... on ProjectV2SingleSelectField {
+                          options {
+                            id
+                            name
+                          }
+                        }
                       }
                     }
                   }
@@ -86,29 +92,8 @@ jobs:
           // Get the PR ID
           const prId = context.payload.pull_request.node_id;
 
-          // Get the possible values for the "Status" field
-          const { node } = await github.graphql(`
-            query($id: ID!) {
-              node(id: $id) {
-                ... on ProjectV2Field {
-                  ... on ProjectV2SingleSelectField {
-                    options {
-                      id
-                      name
-                    }
-                  }
-                }
-              }
-            }
-          `, {
-            id: statusFieldId
-          });
-
-          const options = node.options;
-          console.log("Available Status Options:", options);
-
           // Find the ID for the desired status
-          const newStatusOption = options.find(option => option.name === newStatusValue);
+          const newStatusOption = statusField.options.find(option => option.name === newStatusValue);
           if (!newStatusOption) {
             throw new Error(`Status option '${newStatusValue}' not found in field '${statusFieldName}'`);
           }
