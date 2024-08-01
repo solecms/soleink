@@ -86,6 +86,8 @@ jobs:
             throw new Error(`Field '${statusFieldName}' not found in project '${projectNumber}'`);
           }
 
+          console.log("statusField: ", statusField);
+
           const statusFieldId = statusField.id;
           console.log(`Found status field ID: ${statusFieldId}`);
 
@@ -98,8 +100,11 @@ jobs:
             throw new Error(`Status option '${newStatusValue}' not found in field '${statusFieldName}'`);
           }
 
+          console.log("Available Status Options:", statusField.options.map(option => option.name));
+
+          console.log("newStatusOption: ", newStatusOption);
+
           const newStatusOptionId = newStatusOption.id;
-          console.log('newStatusOptionId: ', newStatusOptionId);
           console.log(`Found status option ID: ${newStatusOptionId}`);
           
 
