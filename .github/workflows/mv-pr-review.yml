@@ -100,7 +100,10 @@ jobs:
 
           const newStatusOptionId = newStatusOption.id;
 
-            // Add the PR to the project with the new status
+          console.log(`Found status option ID: ${newStatusOptionId}`);
+          console.log(`type of newStatusOptionId: ${typeof newStatusOptionId}`);
+
+            // Update the mutation to use newStatusOptionId directly
             await github.graphql(`
             mutation($projectId: ID!, $contentId: ID!, $fieldId: ID!, $optionId: ID!) {
                 updateProjectV2ItemFieldValue(input: {
@@ -118,7 +121,7 @@ jobs:
             projectId: projectId,
             contentId: prId,
             fieldId: statusFieldId,
-            optionId: newStatusOptionId.toString() // Ensuring the ID is treated as a string
+            optionId: newStatusOptionId // Use newStatusOptionId directly
             });
 
             console.log(`Successfully set PR ${prId} to status '${newStatusValue}'`);
