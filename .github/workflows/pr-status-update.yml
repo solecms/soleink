@@ -1,0 +1,124 @@
+name: Move PR to Review
+
+on:
+  pull_request:
+    types: [opened]
+
+jobs:
+  move-card:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Get Token
+      id: get_workflow_token
+      uses: peter-murray/workflow-application-token-action@v3
+      with:
+        application_id: ${{ vars.APP_ID }}
+        application_private_key: ${{ secrets.APP_SECRET }}
+
+    - name: Move PR to Review
+      uses: actions/github-script@v7
+      with:
+        github-token: ${{ steps.get_workflow_token.outputs.token }}
+        script: |
+          const projectOwner = 'solecms';
+          const projectNumber = 3;
+          const statusFieldName = 'Status';
+          const newStatusValue = 'Review/QA';
+
+          // Get the organization projects
+          const { organization } = await github.graphql(`
+            query($owner: String!) {
+              organization(login: $owner) {
+                projectsV2(first: 100) {
+                  nodes {
+                    id
+                    number
+                    title
+                    fields(first: 100) {
+                      nodes {
+                        __typename
+                        ... on ProjectV2FieldCommon {
+                          id
+                          name
+                        }
+                        ... on ProjectV2SingleSelectField {
+                          options {
+                            id
+                            name
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          `, {
+            owner: projectOwner
+          });
+
+          if (!organization) {
+            throw new Error(`Organization '${projectOwner}' not found`);
+          }
+
+          const projects = organization.projectsV2.nodes ?? [];
+          console.log("Projects Response:", projects);
+
+          // Find the project by number
+          const project = projects.find(proj => proj.number === projectNumber);
+          if (!project) {
+            throw new Error(`Project number '${projectNumber}' not found for owner '${projectOwner}'`);
+          }
+
+          const projectId = project.id;
+          console.log(`Found project ID: ${projectId}`);
+
+          // Find the "Status" field
+          const fields = project.fields.nodes;
+          console.log("Available Columns:", fields.map(field => field.name));
+
+          const statusField = fields.find(field => field.name === statusFieldName);
+          if (!statusField) {
+            throw new Error(`Field '${statusFieldName}' not found in project '${projectNumber}'`);
+          }
+
+          const statusFieldId = statusField.id;
+          console.log(`Found status field ID: ${statusFieldId}`);
+
+          // Get the PR ID
+          const prId = context.payload.pull_request.node_id;
+
+          // Find the ID for the desired status
+          const newStatusOption = statusField.options.find(option => option.name === newStatusValue);
+          if (!newStatusOption) {
+            throw new Error(`Status option '${newStatusValue}' not found in field '${statusFieldName}'`);
+          }
+
+          const newStatusOptionId = newStatusOption.id;
+
+          // Add the PR to the project with the new status
+          await github.graphql(`
+            mutation($projectId: ID!, $contentId: ID!, $fieldId: ID!, $optionId: ID!) {
+              updateProjectV2ItemFieldValue(input: {
+                projectId: $projectId,
+                itemId: $contentId,
+                fieldId: $fieldId,
+                value: { singleSelectOptionId: $optionId }
+              }) {
+                projectV2Item {
+                  id
+                }
+              }
+            }
+          `, {
+            projectId: projectId,
+            contentId: prId,
+            fieldId: statusFieldId,
+            optionId: newStatusOptionId.toString() // Ensuring the ID is treated as a string
+          });
+
+          console.log(`Successfully set PR ${prId} to status '${newStatusValue}'`);
