@@ -5,33 +5,50 @@ module.exports = async ({ github, context }) => {
 	}
 
 	const projectId = "PVT_kwDOCksqQs4AkdsH"; // replace with your project ID
-	const prId = context.payload.pull_request.node_id;
+	// const prId = context.payload.pull_request.node_id;
 	const statusFieldId = "PVTSSF_lADOCksqQs4AkdsHzgcqtpk"; // replace with your status field ID
 	const newStatusOptionId = "df73e18b"; // replace with the new status option ID
 
-	try {
-		await github.graphql(
-			`
-        mutation($projectId: ID!, $contentId: ID!, $fieldId: ID!, $optionId: String!) {
-          updateProjectV2ItemFieldValue(input: {
-            projectId: $projectId,
-            itemId: $contentId,
-            fieldId: $fieldId,
-            value: { singleSelectOptionId: $optionId }
-          }) {
-            projectV2Item {
+	const query = `
+    query($pullRequestId: ID!) {
+      node(id: $pullRequestId) {
+        ... on PullRequest {
+          projectItems(first: 1) {
+            nodes {
               id
             }
           }
         }
-      `,
-			{
-				projectId,
-				contentId: prId,
-				fieldId: statusFieldId,
-				optionId: newStatusOptionId, // Ensuring the ID is treated as a string
-			},
-		);
+      }
+    }
+  `;
+
+	try {
+		const result = await github.graphql(query, { pullRequestId: prId });
+		const projectItemId = result.data.node.projectItems.nodes[0].id;
+
+		// Now you can use the projectItemId to update the project item field value
+		const updateQuery = `
+    mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $optionId: String!) {
+      updateProjectV2ItemFieldValue(input: {
+        projectId: $projectId,
+        itemId: $itemId,
+        fieldId: $fieldId,
+        value: { singleSelectOptionId: $optionId }
+      }) {
+        projectV2Item {
+          id
+        }
+      }
+    }
+    `;
+
+		await github.graphql(updateQuery, {
+			projectId: projectId,
+			itemId: projectItemId,
+			fieldId: statusFieldId,
+			optionId: newStatusOptionId,
+		});
 	} catch (error) {
 		console.error("Error updating project status:", error);
 		throw error;
