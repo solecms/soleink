@@ -117,8 +117,7 @@ jobs:
           `, {
             projectId: projectId,
             contentId: prId,
-            fieldId: statusFieldId,
-            # optionId: newStatusOptionId
+            fieldId: statusFieldId
           });
 
           console.log(`Successfully set PR ${prId} to status '${newStatusValue}'`);
