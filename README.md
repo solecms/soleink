@@ -4,6 +4,10 @@
   </a>
   <a href="https://github.com/solecms/soleink/actions/workflows/sync-pr-issue.yml">
     <img src="https://github.com/solecms/soleink/actions/workflows/sync-pr-issue.yml/badge.svg" alt="SoleInk Sync PR">
+  </a>
+  <a href="https://github.com/solecms/soleink/actions/workflows/pr-status-update.yml">
+    <img src="https://github.com/solecms/soleink/actions/workflows/pr-status-update.yml/badge.svg" alt="SoleInk PR Status Update">
+  </a>
 </div>
 
 ____
