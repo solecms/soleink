@@ -1,5 +1,0 @@
-blank_issues_enabled: true
-contact_links:
-  - name: Infrastructure-Workflow Issues
-    url: https://github.com/solecms/soleink/issues/new?template=infrastructure-workflow
-    about: Enhancements and issues related to project structure, workflow optimization, and documentation.
