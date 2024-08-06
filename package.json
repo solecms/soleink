@@ -13,7 +13,7 @@
 		"build:types": "tsc --emitDeclarationOnly",
 		"clean:types": "rimraf dist/types/lib dist/types/components/misc dist/types/components/**/**.test.**",
 		"build": "npm run build:rollup && npm run build:types && npm run clean:types",
-		"div": "rollup -c -w",
+		"dev": "rollup -c --bundleConfigAsCjs -w",
 		"rmPack": "rimraf pack",
 		"mkPack": "mkdir -p pack",
 		"prepack": "npm run rmPack && npm run mkPack",
@@ -22,7 +22,9 @@
 		"start": "npm run build && npm run pack",
 		"app": "parcel src/app/index.html"
 	},
-	"files": ["dist"],
+	"files": [
+		"dist"
+	],
 	"author": "Taslim A Hussain",
 	"license": "MIT",
 	"devDependencies": {
